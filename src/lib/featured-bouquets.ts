@@ -14,7 +14,7 @@ export const featuredBouquets: FeaturedBouquet[] = [
     description: "Roses garden profondes, eucalyptus et ruban ivoire.",
     priceMad: 450,
     imageSrc:
-      "https://images.unsplash.com/photo-1519378058459-4c91b5d0b0a4?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1200&q=80",
     imageAlt: "Bouquet de roses rouges attaché d’un ruban",
   },
   {

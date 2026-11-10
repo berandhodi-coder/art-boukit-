@@ -4,7 +4,7 @@ export function Hero() {
   return (
     <section className="relative isolate min-h-[88vh] overflow-hidden">
       <Image
-        src="https://images.unsplash.com/photo-1457083328127-435ca63e0b0f?auto=format&fit=crop&w=2000&q=80"
+        src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=2000&q=80"
         alt="Composition florale luxueuse sur fond clair"
         fill
         priority
