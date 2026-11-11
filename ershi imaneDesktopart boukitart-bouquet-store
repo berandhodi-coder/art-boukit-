@@ -1,0 +1,15 @@
+warning: in the working copy of '.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/featured-collection.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/layout/site-header.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/featured-bouquets.ts', LF will be replaced by CRLF the next time Git touches it
+ .env.example                                |  18 [32m+++[m[31m-[m
+ package-lock.json                           | 132 [32m++++++++++++++++++++++++++++[m
+ package.json                                |   1 [32m+[m
+ src/app/layout.tsx                          |  11 [32m++[m[31m-[m
+ src/components/home/featured-collection.tsx |  88 [32m+++++++++++++[m[31m------[m
+ src/components/layout/site-header.tsx       |  35 [32m+++++[m[31m---[m
+ src/lib/featured-bouquets.ts                |  50 [32m+[m[31m----------[m
+ 7 files changed, 244 insertions(+), 91 deletions(-)
