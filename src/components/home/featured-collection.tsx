@@ -1,84 +1,97 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRightIcon } from "@/components/ui/icons";
+import { Reveal } from "@/components/ui/reveal";
 import { featuredBouquets } from "@/lib/featured-bouquets";
 import { formatMad } from "@/lib/format-price";
 
 export function FeaturedCollection() {
   return (
     <section id="bouquets" className="bg-ivory">
-      <div className="mx-auto max-w-6xl px-6 py-24">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div className="max-w-2xl">
-            <p className="text-xs tracking-[0.32em] text-burgundy uppercase">Sélection</p>
-            <h2 className="mt-4 font-serif text-4xl text-ink sm:text-5xl">
-              Bouquets du moment
+      <div className="mx-auto max-w-7xl px-6 py-24 sm:px-10 lg:py-36">
+        <Reveal className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div>
+            <p className="eyebrow flex items-center gap-4 text-burgundy">
+              <span aria-hidden="true" className="h-px w-10 bg-gold" />
+              Sélection
+            </p>
+            <h2 className="mt-6 text-5xl leading-[0.95] font-light tracking-[-0.01em] text-ink sm:text-6xl lg:text-7xl">
+              Bouquets <em className="text-burgundy">du moment</em>
             </h2>
-            <p className="mt-4 text-base leading-7 text-ink/70">
+          </div>
+          <div className="lg:justify-self-end">
+            <p className="max-w-sm text-base leading-8 text-ink/70">
               Quatre compositions emblématiques photographiées avec soin. Explorez
               leurs détails ou découvrez le catalogue complet.
             </p>
-          </div>
-          <div>
             <Link
               href="/bouquets"
-              className="inline-flex items-center gap-2 rounded-full border border-burgundy/25 bg-white/60 px-6 py-3 text-xs tracking-[0.16em] text-burgundy uppercase transition-colors hover:border-burgundy hover:bg-white"
+              className="group mt-7 inline-flex items-center gap-3 text-xs tracking-[0.2em] text-burgundy uppercase"
             >
-              Voir tout le catalogue →
+              <span className="link-underline-static">Voir tout le catalogue</span>
+              <ArrowRightIcon className="h-4 w-4 transition-transform duration-500 ease-luxe group-hover:translate-x-1" />
             </Link>
           </div>
-        </div>
+        </Reveal>
 
-        <ul className="mt-14 grid gap-8 sm:grid-cols-2">
-          {featuredBouquets.map((bouquet) => (
+        <ul className="no-scrollbar -mx-6 mt-16 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16 sm:overflow-visible sm:px-0 lg:mt-24 lg:grid-cols-4 lg:gap-x-7">
+          {featuredBouquets.map((bouquet, index) => (
             <li
               key={bouquet.id}
-              className="group overflow-hidden rounded-[1.75rem] border border-burgundy/10 bg-white shadow-[0_24px_60px_-40px_rgba(75,18,36,0.55)] transition-transform duration-500 hover:-translate-y-1"
+              className={`w-[76vw] max-w-sm shrink-0 snap-start sm:w-auto sm:max-w-none ${
+                index % 2 === 1 ? "lg:mt-20" : ""
+              }`}
             >
-              <Link href={`/bouquets/${bouquet.slug}`} className="block">
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image
-                    src={bouquet.imageSrc}
-                    alt={bouquet.imageAlt}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, 50vw"
-                  />
-                  <div className="absolute top-4 left-4 rounded-full bg-ivory/90 px-3.5 py-1 text-[0.65rem] tracking-[0.18em] text-burgundy uppercase backdrop-blur-sm">
-                    {bouquet.category}
-                  </div>
-                </div>
-                <div className="space-y-3 px-7 py-7">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-serif text-2xl text-ink transition-colors group-hover:text-burgundy">
-                      {bouquet.name}
-                    </h3>
-                    <span className="text-xs text-burgundy opacity-0 transition-opacity group-hover:opacity-100">
-                      Découvrir →
+              <Reveal delay={index * 110}>
+                <Link href={`/bouquets/${bouquet.slug}`} className="group block">
+                  <div className="flex items-baseline justify-between pb-4">
+                    <span className="font-serif text-lg text-gold italic">
+                      N° {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-[0.625rem] tracking-[0.26em] text-ink/55 uppercase">
+                      {bouquet.category}
                     </span>
                   </div>
-                  <p className="text-sm leading-6 text-ink/65">{bouquet.description}</p>
-                  <div className="flex items-end justify-between pt-2">
-                    <p className="text-lg tracking-wide text-burgundy">
-                      {formatMad(bouquet.priceMad)}
-                    </p>
-                    <p className="text-[0.65rem] tracking-[0.16em] text-ink/45 uppercase">
-                      Paiement à la livraison
-                    </p>
+
+                  <div className="relative aspect-[3/4] overflow-hidden bg-champagne">
+                    <Image
+                      src={bouquet.imageSrc}
+                      alt={bouquet.imageAlt}
+                      fill
+                      className="object-cover transition-transform duration-[1600ms] ease-luxe group-hover:scale-[1.06]"
+                      sizes="(max-width: 640px) 76vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-3 border border-ivory/0 transition-colors duration-700 group-hover:border-ivory/70"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between bg-burgundy px-5 py-4 text-[0.625rem] tracking-[0.24em] text-ivory uppercase transition-transform duration-700 ease-luxe group-hover:translate-y-0 group-focus-visible:translate-y-0">
+                      Découvrir le bouquet
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </div>
                   </div>
-                </div>
-              </Link>
+
+                  <div className="pt-6">
+                    <h3 className="text-[1.75rem] leading-tight text-ink transition-colors duration-500 group-hover:text-burgundy">
+                      {bouquet.name}
+                    </h3>
+                    <p className="mt-1.5 font-serif text-lg leading-snug text-ink/60 italic">
+                      {bouquet.subtitle}
+                    </p>
+                    <div className="mt-5 flex items-baseline justify-between gap-4 border-t border-burgundy/15 pt-4">
+                      <p className="text-sm tracking-[0.12em] text-burgundy">
+                        {formatMad(bouquet.priceMad)}
+                      </p>
+                      <p className="text-[0.625rem] tracking-[0.18em] text-ink/50 uppercase">
+                        Paiement à la livraison
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
             </li>
           ))}
         </ul>
-
-        <div className="mt-12 text-center sm:hidden">
-          <Link
-            href="/bouquets"
-            className="inline-block rounded-full bg-burgundy px-8 py-3.5 text-xs tracking-[0.18em] text-ivory uppercase transition-colors hover:bg-burgundy-deep"
-          >
-            Découvrir tout le catalogue
-          </Link>
-        </div>
       </div>
     </section>
   );

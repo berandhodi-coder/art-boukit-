@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { CartProvider } from "@/context/cart-context";
 import { CartDrawer } from "@/components/cart/cart-drawer";
@@ -14,13 +14,18 @@ const outfit = Outfit({
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
   title: "Art Bouquet | Fleurs d’exception au Maroc",
   description:
     "Maison florale marocaine. Bouquets luxueux livrés à domicile, prix en MAD, paiement uniquement à la livraison.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fcf9f0",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -30,6 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${outfit.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ivory font-sans text-ink">
+        <noscript>
+          <style>{".reveal{opacity:1;transform:none}"}</style>
+        </noscript>
         <CartProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>
