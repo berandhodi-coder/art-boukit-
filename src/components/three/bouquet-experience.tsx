@@ -1,7 +1,7 @@
 "use client";
 
 import { Environment, Lightformer } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   useEffect,
   useMemo,
@@ -30,27 +30,119 @@ const BASE_TILT = 0.34;
 const BASE_Y = 0.72;
 const AUTO_SPIN = 0.2;
 
-function isWebGLAvailable(): boolean {
+function probeWebGL(): { supported: boolean; softwareGl: boolean } {
+  if (typeof document === "undefined") {
+    return { supported: true, softwareGl: false };
+  }
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+    const gl =
+      (canvas.getContext("webgl2") as WebGL2RenderingContext | null) ??
+      (canvas.getContext("webgl") as WebGLRenderingContext | null);
+    if (!gl) {
+      return { supported: false, softwareGl: false };
+    }
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    const param = ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER;
+    const gpu = String(gl.getParameter(param) ?? "");
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    const softwareGl =
+      /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+    return { supported: true, softwareGl };
   } catch {
-    return false;
+    return { supported: false, softwareGl: false };
   }
 }
 
 function Bouquet({
   interactionRef,
   reducedMotion,
+  softwareGl,
+  inView,
+  invalidateRef,
 }: {
   interactionRef: RefObject<Interaction>;
   reducedMotion: boolean;
+  softwareGl: boolean;
+  inView: boolean;
+  invalidateRef: RefObject<(() => void) | null>;
 }) {
   const tiltRef = useRef<THREE.Group>(null);
   const spinRef = useRef<THREE.Group>(null);
+  const lastStepRef = useRef<number>(0);
   const parts = useMemo(() => buildBouquet(), []);
+  const { gl, invalidate } = useThree();
+
+  useEffect(() => {
+    invalidateRef.current = invalidate;
+    return () => {
+      invalidateRef.current = null;
+    };
+  }, [invalidate, invalidateRef]);
 
   useEffect(() => () => disposeBouquet(parts), [parts]);
+
+  // Pace software WebGL frames via GPU fence sync + 90ms breathing room so CPU rendering never stalls the page.
+  useEffect(() => {
+    if (!softwareGl || !inView) return;
+
+    let cancelled = false;
+    let timerId = 0;
+    let rafId = 0;
+
+    invalidate();
+
+    if (reducedMotion) {
+      return () => {
+        cancelled = true;
+        window.clearTimeout(timerId);
+        cancelAnimationFrame(rafId);
+      };
+    }
+
+    const scheduleNext = () => {
+      if (cancelled) return;
+      const ctx = gl.getContext() as WebGL2RenderingContext | WebGLRenderingContext;
+      if ("fenceSync" in ctx && typeof ctx.fenceSync === "function") {
+        const sync = ctx.fenceSync(ctx.SYNC_GPU_COMMANDS_COMPLETE, 0);
+        ctx.flush();
+        const poll = () => {
+          if (cancelled) {
+            if (sync) ctx.deleteSync(sync);
+            return;
+          }
+          const status = sync
+            ? ctx.getSyncParameter(sync, ctx.SYNC_STATUS)
+            : ctx.SIGNALED;
+          if (status === ctx.UNSIGNALED) {
+            timerId = window.setTimeout(poll, 10);
+          } else {
+            if (sync) ctx.deleteSync(sync);
+            timerId = window.setTimeout(() => {
+              if (cancelled) return;
+              invalidate();
+              rafId = requestAnimationFrame(scheduleNext);
+            }, 90);
+          }
+        };
+        timerId = window.setTimeout(poll, 10);
+      } else {
+        timerId = window.setTimeout(() => {
+          if (cancelled) return;
+          invalidate();
+          rafId = requestAnimationFrame(scheduleNext);
+        }, 110);
+      }
+    };
+
+    rafId = requestAnimationFrame(scheduleNext);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timerId);
+      cancelAnimationFrame(rafId);
+    };
+  }, [gl, invalidate, inView, reducedMotion, softwareGl]);
 
   useFrame((_, delta) => {
     const tilt = tiltRef.current;
@@ -58,7 +150,14 @@ function Bouquet({
     const interaction = interactionRef.current;
     if (!tilt || !spin || !interaction) return;
 
-    const dt = Math.min(delta, 0.05);
+    const now = performance.now();
+    const rawDt =
+      lastStepRef.current > 0 ? (now - lastStepRef.current) / 1000 : delta;
+    lastStepRef.current = now;
+    const dt = softwareGl
+      ? Math.min(Math.max(rawDt, 0.016), 0.25)
+      : Math.min(delta, 0.05);
+
     interaction.time += dt;
 
     if (!interaction.dragging) {
@@ -140,15 +239,18 @@ function Bouquet({
 }
 
 export default function BouquetExperience() {
-  const [supported] = useState(isWebGLAvailable);
-  const [reducedMotion] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  const [{ supported, softwareGl }] = useState(probeWebGL);
+  const [reducedMotion] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false,
   );
   const [ready, setReady] = useState(false);
   const [inView, setInView] = useState(true);
   const [grabbing, setGrabbing] = useState(false);
   const [explored, setExplored] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const invalidateRef = useRef<(() => void) | null>(null);
   const interactionRef = useRef<Interaction>({
     dragging: false,
     lastX: 0,
@@ -195,11 +297,13 @@ export default function BouquetExperience() {
     }
     interaction.lastX = event.clientX;
     interaction.lastY = event.clientY;
+    if (softwareGl) invalidateRef.current?.();
   };
 
   const handlePointerEnd = () => {
     interactionRef.current.dragging = false;
     setGrabbing(false);
+    if (softwareGl) invalidateRef.current?.();
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -207,11 +311,15 @@ export default function BouquetExperience() {
     event.preventDefault();
     interactionRef.current.targetSpin += event.key === "ArrowLeft" ? -0.45 : 0.45;
     setExplored(true);
+    if (softwareGl) invalidateRef.current?.();
   };
 
   return (
     <div
       ref={containerRef}
+      data-testid="bouquet-3d-stage"
+      data-ready={ready ? "true" : "false"}
+      data-explored={explored ? "true" : "false"}
       role="img"
       tabIndex={0}
       aria-label="Bouquet de roses en trois dimensions. Faites glisser, ou utilisez les flèches gauche et droite, pour le faire pivoter."
@@ -225,23 +333,28 @@ export default function BouquetExperience() {
       }`}
     >
       <Canvas
-        shadows
-        dpr={[1, 1.75]}
-        frameloop={inView ? "always" : "never"}
+        shadows={softwareGl ? false : { type: THREE.PCFShadowMap }}
+        dpr={softwareGl ? 1 : [1, 1.75]}
+        frameloop={softwareGl ? "demand" : inView ? "always" : "never"}
         camera={{ position: [0, 1.4, 17.5], fov: 28, near: 1, far: 60 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        gl={{
+          antialias: !softwareGl,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
         onCreated={() => setReady(true)}
-        className={`transition-opacity duration-1000 ${
+        className={`transition-opacity duration-700 ${
           ready ? "opacity-100" : "opacity-0"
         }`}
       >
-        <ambientLight intensity={0.35} color="#fff4ea" />
+        <ambientLight intensity={0.22} color="#fff4ea" />
+        <hemisphereLight args={["#fff8f0", "#7b3949", 0.35]} />
         <directionalLight
-          castShadow
+          castShadow={!softwareGl}
           position={[-5, 9, 7]}
-          intensity={2.1}
+          intensity={2.35}
           color="#fff3e6"
-          shadow-mapSize={[2048, 2048]}
+          shadow-mapSize={[1024, 1024]}
           shadow-bias={-0.0004}
           shadow-normalBias={0.04}
           shadow-camera-left={-5}
@@ -251,8 +364,8 @@ export default function BouquetExperience() {
           shadow-camera-near={1}
           shadow-camera-far={30}
         />
-        <directionalLight position={[6, 2, 4]} intensity={0.5} color="#f6d6dc" />
-        <Environment resolution={256} frames={1}>
+        <directionalLight position={[6, 2, 4]} intensity={0.45} color="#f6d6dc" />
+        <Environment resolution={softwareGl ? 64 : 256} frames={1}>
           <color attach="background" args={["#e9dfd0"]} />
           <Lightformer
             form="rect"
@@ -283,12 +396,18 @@ export default function BouquetExperience() {
             scale={5}
           />
         </Environment>
-        <Bouquet interactionRef={interactionRef} reducedMotion={reducedMotion} />
+        <Bouquet
+          interactionRef={interactionRef}
+          reducedMotion={reducedMotion}
+          softwareGl={softwareGl}
+          inView={inView}
+          invalidateRef={invalidateRef}
+        />
       </Canvas>
 
       <p
         aria-hidden="true"
-        className={`pointer-events-none absolute bottom-[9%] left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-burgundy/15 bg-ivory/85 px-4 py-2 text-[0.625rem] tracking-[0.24em] whitespace-nowrap text-burgundy uppercase backdrop-blur-sm transition-opacity duration-700 ${
+        className={`pointer-events-none absolute bottom-[9%] left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-burgundy/15 bg-ivory/95 px-4 py-2 text-[0.625rem] tracking-[0.24em] whitespace-nowrap text-burgundy uppercase transition-opacity duration-700 ${
           ready && !explored ? "opacity-100" : "opacity-0"
         }`}
       >

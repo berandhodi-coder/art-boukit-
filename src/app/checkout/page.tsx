@@ -9,16 +9,17 @@ export const metadata: Metadata = {
 
 export default function CheckoutPage() {
   return (
-    <div className="bg-ivory min-h-screen">
-      <div className="mx-auto max-w-6xl px-6 py-12 sm:py-20">
-        <div className="max-w-2xl mb-12">
-          <p className="text-xs tracking-[0.32em] text-burgundy uppercase">
+    <div className="min-h-screen bg-ivory">
+      <div className="mx-auto max-w-7xl px-6 py-14 sm:px-10 lg:py-20">
+        <div className="mb-14 border-b border-burgundy/15 pb-10">
+          <p className="eyebrow flex items-center gap-4 text-burgundy">
+            <span aria-hidden="true" className="h-px w-10 bg-gold" />
             Maison florale · Commande
           </p>
-          <h1 className="mt-3 font-serif text-4xl text-ink sm:text-5xl">
-            Finaliser votre commande
+          <h1 className="mt-6 font-serif text-5xl leading-[0.95] font-light text-ink sm:text-6xl">
+            Finaliser votre <em className="text-burgundy">commande</em>
           </h1>
-          <p className="mt-3 text-sm leading-6 text-ink/70">
+          <p className="mt-4 max-w-xl text-base leading-8 text-ink/70">
             Renseignez vos coordonnées de livraison. Votre commande sera préparée à la main
             et réglée en espèces directement au livreur à votre porte.
           </p>

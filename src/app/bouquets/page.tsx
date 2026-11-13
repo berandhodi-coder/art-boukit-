@@ -13,24 +13,25 @@ export default function BouquetsPage() {
   const categories = getCategories();
 
   return (
-    <div className="bg-ivory min-h-screen">
-      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-        {/* Page Header */}
-        <div className="max-w-2xl mb-12">
-          <p className="text-xs tracking-[0.34em] text-burgundy uppercase">
-            Maison florale · Catalogue
-          </p>
-          <h1 className="mt-4 font-serif text-4xl text-ink sm:text-5xl lg:text-6xl">
-            Notre Collection Florale
-          </h1>
-          <p className="mt-4 text-base leading-7 text-ink/70">
+    <div className="min-h-screen bg-ivory">
+      <div className="mx-auto max-w-7xl px-6 py-16 sm:px-10 lg:py-24">
+        <div className="mb-14 grid gap-8 border-b border-burgundy/15 pb-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div>
+            <p className="eyebrow flex items-center gap-4 text-burgundy">
+              <span aria-hidden="true" className="h-px w-10 bg-gold" />
+              Maison florale · Catalogue
+            </p>
+            <h1 className="mt-6 text-5xl leading-[0.95] font-light tracking-[-0.015em] text-ink sm:text-6xl lg:text-7xl">
+              Notre Collection <em className="text-burgundy">Florale</em>
+            </h1>
+          </div>
+          <p className="max-w-md text-base leading-8 text-ink/70 lg:justify-self-end">
             Chaque bouquet est une composition singulière, confectionnée avec des
             tiges fraîches sélectionnées à maturité. Explorez nos créations et
-            commandez pour une livraison soignée dans les grandes villes du Maroc.
+            commandez pour une livraison soignée au Maroc.
           </p>
         </div>
 
-        {/* Catalog Browser (Filter, Search, Grid) */}
         <CatalogBrowser products={products} categories={categories} />
       </div>
     </div>

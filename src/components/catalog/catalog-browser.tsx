@@ -3,6 +3,12 @@
 import { useId, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  ArrowRightIcon,
+  CloseIcon,
+  SearchIcon,
+  SparkIcon,
+} from "@/components/ui/icons";
 import type { Product, ProductCategory } from "@/lib/products";
 import { formatMad } from "@/lib/format-price";
 
@@ -43,50 +49,45 @@ export function CatalogBrowser({ products, categories }: CatalogBrowserProps) {
       case "in_stock":
         return {
           label: "En stock",
-          className: "bg-emerald-950/10 text-emerald-900 border-emerald-900/20",
+          className: "border-sage/50 bg-ivory/95 text-ink",
         };
       case "limited":
         return {
           label: "Édition limitée",
-          className: "bg-amber-950/10 text-amber-900 border-amber-900/20",
+          className: "border-gold/70 bg-ivory/95 text-burgundy",
         };
       case "seasonal":
         return {
           label: "De saison",
-          className: "bg-rose-950/10 text-burgundy border-burgundy/20",
+          className: "border-burgundy/25 bg-ivory/95 text-burgundy",
         };
     }
   };
 
   return (
     <div className="space-y-12">
-      {/* Demo Notice Banner */}
-      <div className="rounded-2xl border border-burgundy/15 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:flex sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-burgundy/10 text-xs font-semibold text-burgundy">
-            i
-          </span>
+      {/* Editorial Service Note */}
+      <div className="border border-gold/55 bg-champagne/30 px-6 py-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
+        <div className="flex items-start gap-4">
+          <SparkIcon className="mt-1 h-3 w-3 shrink-0 text-gold" />
           <div>
-            <p className="text-xs font-medium tracking-[0.14em] text-burgundy uppercase">
-              Catalogue de démonstration
+            <p className="text-[0.6875rem] tracking-[0.24em] text-burgundy uppercase">
+              Maison Art Bouquet · Prix en MAD
             </p>
-            <p className="mt-1 text-xs leading-5 text-ink/75 sm:text-sm">
-              Présentation du catalogue Art Bouquet. Prix en MAD (Dirham marocain). Règlement exclusivement en espèces à la livraison.
+            <p className="mt-1 text-sm leading-6 text-ink/75">
+              Tarifs en dirhams marocains. Règlement exclusivement en espèces à la livraison.
             </p>
           </div>
         </div>
-        <div className="mt-3 shrink-0 sm:mt-0">
-          <span className="inline-block rounded-full bg-burgundy/10 px-3.5 py-1 text-[0.65rem] tracking-[0.16em] text-burgundy uppercase">
-            Maroc · Casablanca, Rabat, Marrakech, Tanger
-          </span>
-        </div>
+        <p className="mt-3 shrink-0 border-t border-burgundy/10 pt-3 text-[0.625rem] tracking-[0.24em] text-burgundy uppercase sm:mt-0 sm:border-t-0 sm:pt-0">
+          Casablanca · Rabat · Marrakech · Tanger
+        </p>
       </div>
 
       {/* Search and Filters Bar */}
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="relative max-w-md flex-1">
             <label htmlFor={searchInputId} className="sr-only">
               Rechercher un bouquet
             </label>
@@ -96,33 +97,35 @@ export function CatalogBrowser({ products, categories }: CatalogBrowserProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher une création, rose, pivoine..."
-              className="w-full rounded-full border border-burgundy/20 bg-white px-5 py-3 pr-10 text-sm text-ink placeholder:text-ink/40 focus:border-burgundy focus:ring-1 focus:ring-burgundy focus:outline-none"
+              className="w-full rounded-full border border-burgundy/20 bg-white/75 py-3 pr-11 pl-5 text-sm text-ink placeholder:text-ink/40 transition-colors focus:border-burgundy focus:bg-white focus:outline-none"
             />
             {searchQuery ? (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
                 aria-label="Effacer la recherche"
-                className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 text-xs text-ink/40 hover:text-ink"
+                className="absolute top-1/2 right-3.5 -translate-y-1/2 rounded-full p-1 text-ink/50 transition-colors hover:text-burgundy"
               >
-                ✕
+                <CloseIcon className="h-4 w-4" />
               </button>
             ) : (
-              <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm text-ink/40">
-                🔍
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-burgundy/55"
+              >
+                <SearchIcon className="h-4 w-4" />
               </span>
             )}
           </div>
 
-          {/* Result Count */}
-          <p className="text-xs tracking-[0.16em] text-ink/60 uppercase">
+          <p className="text-[0.6875rem] tracking-[0.22em] text-ink/60 uppercase">
             {filteredProducts.length}{" "}
             {filteredProducts.length > 1 ? "créations disponibles" : "création disponible"}
           </p>
         </div>
 
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Category Filters */}
+        <div className="flex flex-wrap items-center gap-2.5" role="group" aria-label="Filtrer par catégorie">
           {categories.map((category) => {
             const isActive = selectedCategory === category;
             return (
@@ -130,10 +133,11 @@ export function CatalogBrowser({ products, categories }: CatalogBrowserProps) {
                 key={category}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
-                className={`rounded-full px-5 py-2 text-xs tracking-[0.14em] uppercase transition-all ${
+                aria-pressed={isActive}
+                className={`rounded-full px-5 py-2 text-[0.6875rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
                   isActive
-                    ? "bg-burgundy text-ivory shadow-sm"
-                    : "border border-burgundy/15 bg-white/60 text-ink/70 hover:border-burgundy/40 hover:bg-white"
+                    ? "bg-burgundy text-ivory"
+                    : "border border-burgundy/20 bg-transparent text-ink/75 hover:border-burgundy hover:text-burgundy"
                 }`}
               >
                 {category}
@@ -145,65 +149,69 @@ export function CatalogBrowser({ products, categories }: CatalogBrowserProps) {
 
       {/* Product Grid or Empty State */}
       {filteredProducts.length > 0 ? (
-        <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredProducts.map((product) => {
+        <ul className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredProducts.map((product, index) => {
             const badge = getAvailabilityBadge(product.availability);
             return (
-              <li
-                key={product.id}
-                className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-burgundy/10 bg-white shadow-[0_24px_60px_-40px_rgba(75,18,36,0.55)] transition-transform duration-500 hover:-translate-y-1"
-              >
-                <Link href={`/bouquets/${product.slug}`} className="flex h-full flex-col">
-                  {/* Image Container */}
-                  <div className="relative aspect-[4/5] overflow-hidden bg-champagne/30">
+              <li key={product.id}>
+                <Link href={`/bouquets/${product.slug}`} className="group block">
+                  <div className="flex items-baseline justify-between pb-3.5">
+                    <span className="font-serif text-lg text-gold italic">
+                      N° {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-[0.625rem] tracking-[0.26em] text-ink/55 uppercase">
+                      {product.category}
+                    </span>
+                  </div>
+
+                  <div className="relative aspect-[3/4] overflow-hidden bg-champagne">
                     <Image
                       src={product.imageSrc}
                       alt={product.imageAlt}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      referrerPolicy="no-referrer"
+                      className="object-cover transition-transform duration-[1600ms] ease-luxe group-hover:scale-[1.06]"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
-                    <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      <span className="rounded-full bg-ivory/95 px-3 py-1 text-[0.65rem] tracking-[0.18em] text-burgundy uppercase backdrop-blur-sm shadow-xs">
-                        {product.category}
-                      </span>
-                    </div>
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-3 border border-ivory/0 transition-colors duration-700 group-hover:border-ivory/75"
+                    />
                     <div className="absolute top-4 right-4">
                       <span
-                        className={`rounded-full border px-3 py-1 text-[0.65rem] tracking-[0.14em] uppercase backdrop-blur-sm ${badge.className}`}
+                        className={`border px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase ${badge.className}`}
                       >
                         {badge.label}
                       </span>
                     </div>
+                    <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between bg-burgundy px-5 py-4 text-[0.625rem] tracking-[0.24em] text-ivory uppercase transition-transform duration-700 ease-luxe group-hover:translate-y-0 group-focus-visible:translate-y-0">
+                      Découvrir le bouquet
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </div>
                   </div>
 
-                  {/* Content Container */}
-                  <div className="flex flex-1 flex-col justify-between p-6">
-                    <div className="space-y-2">
-                      <h3 className="font-serif text-2xl text-ink transition-colors group-hover:text-burgundy">
+                  <div className="pt-5">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h3 className="text-[1.75rem] leading-tight text-ink transition-colors duration-500 group-hover:text-burgundy">
                         {product.name}
                       </h3>
-                      <p className="text-xs font-medium tracking-wide text-burgundy/90">
-                        {product.subtitle}
-                      </p>
-                      <p className="line-clamp-2 text-xs leading-5 text-ink/65">
-                        {product.description}
-                      </p>
+                      <span className="shrink-0 text-[0.625rem] tracking-[0.18em] text-ink/50 uppercase">
+                        {product.stemsCount} tiges
+                      </span>
                     </div>
-
-                    <div className="mt-6 border-t border-burgundy/10 pt-4">
-                      <div className="flex items-baseline justify-between">
-                        <span className="font-serif text-2xl font-semibold text-burgundy">
-                          {formatMad(product.priceMad)}
-                        </span>
-                        <span className="text-[0.65rem] tracking-[0.14em] text-ink/45 uppercase">
-                          {product.stemsCount} tiges
-                        </span>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between text-[0.65rem] tracking-[0.14em] text-ink/50 uppercase">
-                        <span>Paiement à la livraison</span>
-                        <span className="text-burgundy group-hover:underline">Voir détails →</span>
-                      </div>
+                    <p className="mt-1.5 font-serif text-lg leading-snug text-ink/60 italic">
+                      {product.subtitle}
+                    </p>
+                    <p className="mt-2.5 line-clamp-2 text-xs leading-5 text-ink/65">
+                      {product.description}
+                    </p>
+                    <div className="mt-5 flex items-baseline justify-between gap-4 border-t border-burgundy/15 pt-4">
+                      <p className="text-sm tracking-[0.12em] text-burgundy">
+                        {formatMad(product.priceMad)}
+                      </p>
+                      <p className="text-[0.625rem] tracking-[0.18em] text-ink/50 uppercase">
+                        Paiement à la livraison
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -212,27 +220,26 @@ export function CatalogBrowser({ products, categories }: CatalogBrowserProps) {
           })}
         </ul>
       ) : (
-        /* Empty State */
-        <div className="rounded-3xl border border-burgundy/15 bg-white/80 px-6 py-16 text-center shadow-sm">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-burgundy/10 text-2xl">
-            🌸
-          </div>
-          <h3 className="mt-4 font-serif text-2xl text-ink sm:text-3xl">
-            Aucun bouquet ne correspond à votre recherche
-          </h3>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/70">
-            {searchQuery
-              ? `Aucun résultat pour "${searchQuery}" dans la catégorie "${selectedCategory}". Essayez un autre terme ou réinitialisez les filtres.`
-              : `Aucun bouquet trouvé dans la catégorie "${selectedCategory}".`}
-          </p>
-          <div className="mt-6">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-full bg-burgundy px-7 py-3 text-xs tracking-[0.16em] text-ivory uppercase transition-colors hover:bg-burgundy-deep"
-            >
-              Réinitialiser tous les filtres
-            </button>
+        <div className="border border-gold/60 p-2">
+          <div className="border border-burgundy/15 bg-champagne/25 px-6 py-16 text-center">
+            <SparkIcon className="mx-auto h-4 w-4 text-gold" />
+            <h3 className="mt-5 font-serif text-3xl font-light text-ink sm:text-4xl">
+              Aucun bouquet ne correspond à votre recherche
+            </h3>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-ink/70">
+              {searchQuery
+                ? `Aucun résultat pour "${searchQuery}" dans la catégorie "${selectedCategory}". Essayez un autre terme ou réinitialisez les filtres.`
+                : `Aucun bouquet trouvé dans la catégorie "${selectedCategory}".`}
+            </p>
+            <div className="mt-8">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="rounded-full bg-burgundy px-8 py-3.5 text-xs tracking-[0.2em] text-ivory uppercase transition-colors hover:bg-burgundy-deep"
+              >
+                Réinitialiser tous les filtres
+              </button>
+            </div>
           </div>
         </div>
       )}

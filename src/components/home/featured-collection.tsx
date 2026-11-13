@@ -58,6 +58,7 @@ export function FeaturedCollection() {
                       src={bouquet.imageSrc}
                       alt={bouquet.imageAlt}
                       fill
+                      referrerPolicy="no-referrer"
                       className="object-cover transition-transform duration-[1600ms] ease-luxe group-hover:scale-[1.06]"
                       sizes="(max-width: 640px) 76vw, (max-width: 1024px) 50vw, 25vw"
                     />

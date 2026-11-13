@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const houseLinks = [
   { href: "/#collections", label: "Collections" },
-  { href: "/#bouquets", label: "Bouquets" },
+  { href: "/bouquets", label: "Bouquets" },
   { href: "/#livraison", label: "Livraison au Maroc" },
 ];
 

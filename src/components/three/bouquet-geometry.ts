@@ -250,8 +250,8 @@ function createWrapGeometry(options: {
   phase: number;
 }): THREE.BufferGeometry {
   const { rimLift, rimRadius, phase } = options;
-  const angleSegments = 120;
-  const heightSegments = 30;
+  const angleSegments = 72;
+  const heightSegments = 20;
   const rows = angleSegments + 1;
   const cols = heightSegments + 1;
   const positions = new Float32Array(rows * cols * 3);
@@ -406,8 +406,8 @@ function createStems(rng: Rng): THREE.BufferGeometry {
 }
 
 function createBlooms(rng: Rng): THREE.BufferGeometry {
-  const gardenRose = createRoseTemplate(300, 12, 14, 0.8);
-  const sprayRose = createRoseTemplate(150, 8, 10, 0.72);
+  const gardenRose = createRoseTemplate(180, 9, 14, 0.8);
+  const sprayRose = createRoseTemplate(96, 6, 10, 0.72);
   const blooms: THREE.BufferGeometry[] = [];
 
   const rings: { polar: number; start: number; palettes: RosePalette[]; scale: number }[] = [
